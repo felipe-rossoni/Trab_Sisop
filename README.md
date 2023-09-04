@@ -1,6 +1,6 @@
 # Trab_Sisop
 ## Tarefas:
-- Consertar o código: separar classes em arquivos
+- Consertar o código: separar classes em arquivos -- Feito
 - Implementar interrupções
 - Implementar Syscall
 - Implementar gerente de memória
