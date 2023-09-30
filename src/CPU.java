@@ -62,21 +62,32 @@ public class CPU {
 
 					// Instrucoes de Busca e Armazenamento em Memoria
 					    case LDI: // Rd ← k
+						if (!legal(ir.p)) {
+							irpt = Interrupts.intEnderecoInvalido;
+						}
+						else{
 							reg[ir.r1] = ir.p;
 							pc++;
 							break;
-
+						}
+		
 						case LDD: // Rd <- [A]
 						    if (legal(ir.p)) {
 							   reg[ir.r1] = m[ir.p].p;
 							   pc++;
 						    }
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 						    break;
 
 						case LDX: // RD <- [RS] // NOVA
 							if (legal(reg[ir.r2])) {
 								reg[ir.r1] = m[reg[ir.r2]].p;
 								pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
 							}
 							break;
 
@@ -85,7 +96,10 @@ public class CPU {
 							    m[ir.p].opc = Opcode.DATA;
 							    m[ir.p].p = reg[ir.r1];
 							    pc++;
-							};
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 						    break;
 
 						case STX: // [Rd] ←Rs
@@ -93,132 +107,233 @@ public class CPU {
 							    m[reg[ir.r1]].opc = Opcode.DATA;      
 							    m[reg[ir.r1]].p = reg[ir.r2];          
 								pc++;
-							};
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 						
 						case MOVE: // RD <- RS
-							reg[ir.r1] = reg[ir.r2];
-							pc++;
+							if (ir.r2 > 8) {
+							irpt = Interrupts.intEnderecoInvalido;
+							}
+							else{
+								reg[ir.r1] = reg[ir.r2];
+								pc++;
+							}
 							break;	
 							
 					// Instrucoes Aritmeticas
 						case ADD: // Rd ← Rd + Rs
-							reg[ir.r1] = reg[ir.r1] + reg[ir.r2];
-							testOverflow(reg[ir.r1]);
+							if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
+								reg[ir.r1] = reg[ir.r1] + reg[ir.r2];
+								if (testOverflow(reg[ir.r1])){
+									irpt = Interrupts.intOverflow;
+								}
 							pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 						case ADDI: // Rd ← Rd + k
+							if(legal(reg[ir.r1])){
 							reg[ir.r1] = reg[ir.r1] + ir.p;
-							testOverflow(reg[ir.r1]);
+							if (testOverflow(reg[ir.r1])){
+								irpt = Interrupts.intOverflow;
+							}
 							pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 						case SUB: // Rd ← Rd - Rs
+							if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 							reg[ir.r1] = reg[ir.r1] - reg[ir.r2];
-							testOverflow(reg[ir.r1]);
+							if (testOverflow(reg[ir.r1])){
+								irpt = Interrupts.intOverflow;
+							}
 							pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 						case SUBI: // RD <- RD - k // NOVA
+							if(legal(reg[ir.r1])){
 							reg[ir.r1] = reg[ir.r1] - ir.p;
-							testOverflow(reg[ir.r1]);
+							if (testOverflow(reg[ir.r1])){
+								irpt = Interrupts.intOverflow;
+							}
 							pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 						case MULT: // Rd <- Rd * Rs
+							if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 							reg[ir.r1] = reg[ir.r1] * reg[ir.r2];  
-							testOverflow(reg[ir.r1]);
+							if (testOverflow(reg[ir.r1])){
+								irpt = Interrupts.intOverflow;
+							}
 							pc++;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 					// Instrucoes JUMP
 						case JMP: // PC <- k
+							if(legal(reg[ir.p])){
 							pc = ir.p;
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 						
 						case JMPIG: // If Rc > 0 Then PC ← Rs Else PC ← PC +1
+							if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 							if (reg[ir.r2] > 0) {
 								pc = reg[ir.r1];
 							} else {
 								pc++;
 							}
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 
 						case JMPIGK: // If RC > 0 then PC <- k else PC++
+							if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 							if (reg[ir.r2] > 0) {
 								pc = ir.p;
 							} else {
 								pc++;
 							}
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 	
 						case JMPILK: // If RC < 0 then PC <- k else PC++
+							if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 							 if (reg[ir.r2] < 0) {
 								pc = ir.p;
 							} else {
 								pc++;
 							}
+							}
+							else{
+								irpt = Interrupts.intEnderecoInvalido;
+							}
 							break;
 	
 						case JMPIEK: // If RC = 0 then PC <- k else PC++
+								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								if (reg[ir.r2] == 0) {
 									pc = ir.p;
 								} else {
 									pc++;
+								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
 								}
 							break;
 	
 	
 						case JMPIL: // if Rc < 0 then PC <- Rs Else PC <- PC +1
+								if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 								 if (reg[ir.r2] < 0) {
 									pc = reg[ir.r1];
 								} else {
 									pc++;
 								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
+								}
 							break;
 		
 						case JMPIE: // If Rc = 0 Then PC <- Rs Else PC <- PC +1
+								if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 								 if (reg[ir.r2] == 0) {
 									pc = reg[ir.r1];
 								} else {
 									pc++;
 								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
+								}
 							break; 
 	
 						case JMPIM: // PC <- [A]
+							if(legal(reg[ir.p]))
 								 pc = m[ir.p].p;
+							else
+								irpt = Interrupts.intEnderecoInvalido;
 							 break; 
 	
 						case JMPIGM: // If RC > 0 then PC <- [A] else PC++
+								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								 if (reg[ir.r2] > 0) {
 									pc = m[ir.p].p;
 								} else {
 									pc++;
 								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
+								}
 							 break;  
 	
 						case JMPILM: // If RC < 0 then PC <- k else PC++
+								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								 if (reg[ir.r2] < 0) {
 									pc = m[ir.p].p;
 								} else {
 									pc++;
 								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
+								}
 							 break; 
 	
 						case JMPIEM: // If RC = 0 then PC <- k else PC++
+								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								if (reg[ir.r2] == 0) {
 									pc = m[ir.p].p;
 								} else {
 									pc++;
 								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
+								}
 							 break; 
 	
 						case JMPIGT: // If RS>RC then PC <- k else PC++
+								if(legal(reg[ir.r2]) && legal(reg[ir.r1])){
 								if (reg[ir.r1] > reg[ir.r2]) {
 									pc = ir.p;
 								} else {
 									pc++;
+								}
+								}
+								else{
+								irpt = Interrupts.intEnderecoInvalido;
 								}
 							 break; 
 
