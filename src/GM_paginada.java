@@ -14,57 +14,44 @@ public class GM_paginada {
         this.tabelaPaginas = new boolean[this.numFrames];
         this.framesLivres = this.numFrames;
 
-        // Inicializa a tabela de páginas com -1 (indicando que nenhuma página está alocada)
         for (int i = 0; i < tabelaPaginas.length; i++) {
             tabelaPaginas[i] = false;
         }
     }
 
-    public boolean aloca(int nroPaginas, int[] tabelaPaginas) {
-        int paginasAlocadas = 0;
-
-        for (int i = 0; i < tabelaPaginas.length; i++) {
-            if (paginasAlocadas == nroPaginas) {
-                // Todas as páginas foram alocadas com sucesso
-                return true;
+    public int[] aloca(int tamProg) {
+        int paginasNecessarias = (tamProg/tamPg);
+        int[] indexs;
+        if(tamProg%tamPg>0)
+            paginasNecessarias++;
+        indexs = new int[paginasNecessarias];
+        if(framesLivres >= paginasNecessarias){
+            int i = 0;
+            int j = 0;
+            while(true){
+                if (i == paginasNecessarias)
+                    break;
+                if (tabelaPaginas[i] == false){
+                    tabelaPaginas[i] = true;
+                    indexs[j] = i;
+                    j++;
+                    framesLivres--;
+                }   
+                i++; 
             }
-
-            if (tabelaPaginas[i] == -1) {
-                // Encontra a primeira página livre e a aloca
-                tabelaPaginas[i] = alocaPagina();
-                paginasAlocadas++;
-            }
+            return indexs;
         }
-
-        // Se não conseguiu alocar todas as páginas solicitadas, libera as que foram alocadas
-        desaloca(tabelaPaginas);
-        return false;
+        return null;
     }
 
-    public void desaloca(int[] tabelaPaginas) {
-        for (int pagina : tabelaPaginas) {
-            if (pagina != -1) {
-                desalocaPagina(pagina);
-            }
+    public void desaloca(int[] paginasAlocadas) {
+        for (int i = 0; i < paginasAlocadas.length; i++) {
+            tabelaPaginas[paginasAlocadas[i]] = false;
+            framesLivres++;
+            for (int j=paginasAlocadas[i]*tamPg; j<paginasAlocadas[i]*tamPg + tamPg; j++) { m[j] = new Word(Opcode.___,-1,-1,-1); }
         }
     }
 
-    private int alocaPagina() {
-        // Encontra a primeira página livre e a aloca
-        for (int i = 0; i < tabelaPaginas.length; i++) {
-            if (tabelaPaginas[i] == -1) {
-                tabelaPaginas[i] = i;
-                return i;
-            }
-        }
-        System.out.println("Nenhuma página disponível!");
-        return -1;
-    }
 
-    private void desalocaPagina(int pagina) {
-        if (pagina >= 0 && pagina < tabelaPaginas.length) {
-            tabelaPaginas[pagina] = -1;
-            // Você pode adicionar aqui a lógica para limpar a memória associada à página desalocada, se necessário.
-        }
-    }
+    
 }
