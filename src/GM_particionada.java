@@ -36,7 +36,10 @@ public class GM_particionada {
         // Libera a partição especificada
         if (part >= 0 && part < particao.length) {
             particao[part] = false;
-            for (int i=part*tamPart; i<part*tamPart + tamPart; i++) { m[i] = new Word(Opcode.___,-1,-1,-1); };
+            if((part*tamPart + tamPart)> tamMem)
+                for (int i=part*tamPart; i<tamMem; i++) { m[i] = new Word(Opcode.___,-1,-1,-1); }
+            else
+                for (int i=part*tamPart; i<part*tamPart + tamPart; i++) { m[i] = new Word(Opcode.___,-1,-1,-1); }
         }
     }
 }
