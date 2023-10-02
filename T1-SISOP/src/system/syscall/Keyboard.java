@@ -15,12 +15,12 @@ public class Keyboard extends Device {
 	
 	@Override
 	public Word read() {
-		try (Scanner sc = new Scanner(System.in)) {
-			int input = sc.nextInt();
+		//try (Scanner sc = new Scanner(System.in)) {
+			int input = 9573;//sc.nextInt();
 			
 			Word word = new Word(Opcode.DATA, this.r0, -1, input);
 			return word;
-		}
+		//}
 	}
 
 	@Override
