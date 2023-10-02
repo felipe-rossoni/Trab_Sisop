@@ -13,6 +13,7 @@ public class CPU {
 		private int limite; // por enquanto toda memoria pode ser acessada pelo processo rodando
 							// ATE AQUI: contexto da CPU - tudo que precisa sobre o estado de um processo para executa-lo
 							// nas proximas versoes isto pode modificar
+		private int pc_calc;
 
 		private Memory mem;               // mem tem funcoes de dump e o array m de memória 'fisica' 
 		private Word[] m;                 // CPU acessa MEMORIA, guarda referencia a 'm'. m nao muda. semre será um array de palavras
@@ -70,12 +71,16 @@ public class CPU {
 			   // FETCH
 				if (legal(pc+base)) { 
 					if(isPag){
-						base = (pags[pc/tamPag]*tamPag) + (pc%tamPag);
-						ir = m[base];
+						pc_calc= (pags[pc/tamPag]*tamPag) + (pc%tamPag);
+						base = (pags[pc/tamPag]*tamPag);
+						ir = m[pc_calc];
 					}else{
 						ir = m[pc+base]; 	// <<<<<<<<<<<<           busca posicao da memoria apontada por pc, guarda em ir
 					}	
-					if (debug) { System.out.print("                               pc: "+pc+"       exec: ");  mem.dump(ir); }
+					if (debug) { 
+						System.out.print("                               pc: "+pc+"       exec: ");  
+						mem.dump(ir); 
+					}
 			   // --------------------------------------------------------------------------------------------------
 			   // EXECUTA INSTRUCAO NO ir
 					switch (ir.opc) {   // conforme o opcode (código de operação) executa
@@ -115,6 +120,9 @@ public class CPU {
 						    if (legal(ir.p)) {
 							    m[ir.p+base].opc = Opcode.DATA;
 							    m[ir.p+base].p = reg[ir.r1];
+							    
+							    System.out.println(m[ir.p+base]);
+							    
 							    pc++;
 							}
 							else{
@@ -368,7 +376,7 @@ public class CPU {
 
 					// Chamada de sistema
 					    case TRAP:
-						     sysCall.handle();            // <<<<< aqui desvia para rotina de chamada de sistema, no momento so temos IO
+						     sysCall.handle(base);            // <<<<< aqui desvia para rotina de chamada de sistema, no momento so temos IO
 							 pc++;
 						     break;
 

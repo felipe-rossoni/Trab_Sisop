@@ -1,5 +1,7 @@
 package system;
 
+import java.util.Arrays;
+
 public class Memory {
 		public int tamMem;    
         public Word[] m;                  // m representa a memória fisica:   um array de posicoes de memoria (word)
@@ -22,5 +24,6 @@ public class Memory {
 				System.out.print(i); System.out.print(":  ");  dump(m[i]);
 			}
 		}
+		
     }
 	

@@ -9,4 +9,11 @@ public class Word { 	// cada posicao da memoria tem uma instrucao (ou um dado)
 		public Word(Opcode _opc, int _r1, int _r2, int _p) {  // vide definição da VM - colunas vermelhas da tabela
 			opc = _opc;   r1 = _r1;    r2 = _r2;	p = _p;
 		}
+
+		@Override
+		public String toString() {
+			return "Word [opc=" + opc + ", r1=" + r1 + ", r2=" + r2 + ", p=" + p + "]";
+		}
+		
+		
 	}
