@@ -1,13 +1,16 @@
 package system;
+
 public class GM_particionada {
     private int tamPart;
     private int tamMem;
     private Word[] m;   // Acesso direto a memória
+    private Memory mem;
     private boolean[] particao;
 
     public GM_particionada(Memory mem, int tamPart){
         this.tamMem = mem.tamMem;
         this.tamPart = tamPart;
+        this.mem = mem;
         this.m = mem.m;
 
         // Define o número de partições
@@ -54,5 +57,9 @@ public class GM_particionada {
             else
                 for (int i=part*tamPart; i<part*tamPart + tamPart; i++) { m[i] = new Word(Opcode.___,-1,-1,-1); }
         }
+    }
+
+    public void dumpProcess(int part){
+        mem.dump(part*tamPart, part*tamPart + tamPart);
     }
 }

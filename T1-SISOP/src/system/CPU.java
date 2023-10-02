@@ -1,11 +1,13 @@
 package system;
+
 public class CPU {
 		private int maxInt; // valores maximo e minimo para inteiros nesta cpu
 		private int minInt;
 							// característica do processador: contexto da CPU ...
+		private boolean isPag;
 		private int pc; 			// ... composto de program counter,
 		private Word ir; 			// instruction register,
-		int[] reg;       	// registradores da CPU
+		private int[] reg;       	// registradores da CPU
 		private Interrupts irpt; 	// durante instrucao, interrupcao pode ser sinalizada
 		private int base;   		// base e limite de acesso na memoria
 		private int limite; // por enquanto toda memoria pode ser acessada pelo processo rodando
@@ -14,6 +16,8 @@ public class CPU {
 
 		private Memory mem;               // mem tem funcoes de dump e o array m de memória 'fisica' 
 		private Word[] m;                 // CPU acessa MEMORIA, guarda referencia a 'm'. m nao muda. semre será um array de palavras
+		private int[] pags;
+		private int tamPag;
 
 		private InterruptHandling ih;     // significa desvio para rotinas de tratamento de  Int - se int ligada, desvia
         private SysCallHandling sysCall;  // significa desvio para tratamento de chamadas de sistema - trap 
@@ -38,24 +42,39 @@ public class CPU {
 		private boolean testOverflow(int v) {                       // toda operacao matematica deve avaliar se ocorre overflow                      
 			if ((v < minInt) || (v > maxInt)) {                       
 				irpt = Interrupts.intOverflow;             
-				return false;
+				return true;
 			};
-			return true;
+			return false;
 		}
 		
-		public void setContext(int _base, int _limite, int _pc) {  // no futuro esta funcao vai ter que ser 
+		public void setContext(int _base, int _limite, int _pc, boolean pag) {  // no futuro esta funcao vai ter que ser 
 			base = _base;                                          // expandida para setar todo contexto de execucao,
 			limite = _limite;									   // agora,  setamos somente os registradores base,
 			pc = _pc;                                              // limite e pc (deve ser zero nesta versao)
-			irpt = Interrupts.noInterrupt;                         // reset da interrupcao registrada
+			irpt = Interrupts.noInterrupt;
+			isPag = pag;                         // reset da interrupcao registrada
+		}
+
+		public void setPags(int[] pags, int pag) {
+			this.pags = pags;
+			this.tamPag = pag;
+		}
+
+		public void traceMode(boolean var){
+			debug = var;
 		}
 		
 		public void run() { 		// execucao da CPU supoe que o contexto da CPU, vide acima, esta devidamente setado			
 			while (true) { 			// ciclo de instrucoes. acaba cfe instrucao, veja cada caso.
 			   // --------------------------------------------------------------------------------------------------
 			   // FETCH
-				if (legal(pc)) { 	// pc valido
-					ir = m[pc]; 	// <<<<<<<<<<<<           busca posicao da memoria apontada por pc, guarda em ir
+				if (legal(pc+base)) { 
+					if(isPag){
+						base = (pags[pc/tamPag]*tamPag) + (pc%tamPag);
+						ir = m[base];
+					}else{
+						ir = m[pc+base]; 	// <<<<<<<<<<<<           busca posicao da memoria apontada por pc, guarda em ir
+					}	
 					if (debug) { System.out.print("                               pc: "+pc+"       exec: ");  mem.dump(ir); }
 			   // --------------------------------------------------------------------------------------------------
 			   // EXECUTA INSTRUCAO NO ir
@@ -74,7 +93,7 @@ public class CPU {
 		
 						case LDD: // Rd <- [A]
 						    if (legal(ir.p)) {
-							   reg[ir.r1] = m[ir.p].p;
+							   reg[ir.r1] = m[ir.p+base].p;
 							   pc++;
 						    }
 							else{
@@ -84,7 +103,7 @@ public class CPU {
 
 						case LDX: // RD <- [RS] // NOVA
 							if (legal(reg[ir.r2])) {
-								reg[ir.r1] = m[reg[ir.r2]].p;
+								reg[ir.r1] = m[reg[ir.r2]+base].p;
 								pc++;
 							}
 							else{
@@ -94,8 +113,8 @@ public class CPU {
 
 						case STD: // [A] ← Rs
 						    if (legal(ir.p)) {
-							    m[ir.p].opc = Opcode.DATA;
-							    m[ir.p].p = reg[ir.r1];
+							    m[ir.p+base].opc = Opcode.DATA;
+							    m[ir.p+base].p = reg[ir.r1];
 							    pc++;
 							}
 							else{
@@ -105,8 +124,8 @@ public class CPU {
 
 						case STX: // [Rd] ←Rs
 						    if (legal(reg[ir.r1])) {
-							    m[reg[ir.r1]].opc = Opcode.DATA;      
-							    m[reg[ir.r1]].p = reg[ir.r2];          
+							    m[reg[ir.r1]+base].opc = Opcode.DATA;      
+							    m[reg[ir.r1]+base].p = reg[ir.r2];          
 								pc++;
 							}
 							else{
@@ -281,7 +300,7 @@ public class CPU {
 	
 						case JMPIM: // PC <- [A]
 							if(legal(reg[ir.p]))
-								 pc = m[ir.p].p;
+								 pc = m[ir.p + base].p;
 							else
 								irpt = Interrupts.intEnderecoInvalido;
 							 break; 
@@ -289,7 +308,7 @@ public class CPU {
 						case JMPIGM: // If RC > 0 then PC <- [A] else PC++
 								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								 if (reg[ir.r2] > 0) {
-									pc = m[ir.p].p;
+									pc = m[ir.p + base].p;
 								} else {
 									pc++;
 								}
@@ -302,7 +321,7 @@ public class CPU {
 						case JMPILM: // If RC < 0 then PC <- k else PC++
 								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								 if (reg[ir.r2] < 0) {
-									pc = m[ir.p].p;
+									pc = m[ir.p + base].p;
 								} else {
 									pc++;
 								}
@@ -315,7 +334,7 @@ public class CPU {
 						case JMPIEM: // If RC = 0 then PC <- k else PC++
 								if(legal(reg[ir.r2]) && legal(reg[ir.p])){
 								if (reg[ir.r2] == 0) {
-									pc = m[ir.p].p;
+									pc = m[ir.p + base].p;
 								} else {
 									pc++;
 								}
@@ -366,5 +385,9 @@ public class CPU {
 					break; // break sai do loop da cpu
 				}
 			}  // FIM DO CICLO DE UMA INSTRUÇÃO
-		}      
+		} 
+		
+		public int[] getReg() {
+			return reg;
+		}
 	}

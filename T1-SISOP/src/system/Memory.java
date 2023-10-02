@@ -1,4 +1,5 @@
 package system;
+
 public class Memory {
 		public int tamMem;    
         public Word[] m;                  // m representa a memória fisica:   um array de posicoes de memoria (word)

@@ -9,12 +9,11 @@ public class SysCallHandling {
 
 	public void handle() { // apenas avisa - todas interrupcoes neste momento finalizam o programa
 		System.out.println("                                               Chamada de Sistema com op  /  par:  "
-				+ vm.cpu.reg[8] + " / " + vm.cpu.reg[9]);
+				+ vm.cpu.getReg()[8] + " / " + vm.cpu.getReg()[9]);
 		
-		int deviceAddress = vm.cpu.reg[7];
-		int operation = vm.cpu.reg[8];
-		int address = vm.cpu.reg[9];
-		
+		int deviceAddress = vm.cpu.getReg()[7];
+		int operation = vm.cpu.getReg()[8];
+		int address = vm.cpu.getReg()[9];
 		
 		switch(operation) {
 			//leitura
@@ -29,8 +28,8 @@ public class SysCallHandling {
 			//escrita
 			case 2:
 				//coloca o conteudo no registrador
-				vm.cpu.reg[0] = vm.mem.m[address].p;
-				int data = vm.cpu.reg[0];
+				vm.cpu.getReg()[0] = vm.mem.m[address].p;
+				int data = vm.cpu.getReg()[0];
 				//grava o conteudo do registrador na posicao de memoria especificado no registrador 9
 				word = new Word(Opcode.DATA, -1, -1, data);
 				vm.mem.m[address] = word;

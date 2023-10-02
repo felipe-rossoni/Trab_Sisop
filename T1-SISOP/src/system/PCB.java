@@ -1,4 +1,5 @@
 package system;
+
 public class PCB {
     private int id;
     private int pc;
@@ -26,4 +27,11 @@ public class PCB {
         return partUsada;
     }
 
+    public int getId(){
+        return id;
+    }
+
+    public int getPc(){
+        return pc;
+    }
 }

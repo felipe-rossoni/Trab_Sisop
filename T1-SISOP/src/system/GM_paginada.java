@@ -1,10 +1,12 @@
 package system;
+
 public class GM_paginada {
     private int framesLivres;
     private int tamPg;
     private int tamMem;
     private int numFrames;
     private Word[] m; // Acesso direto à memória
+    private Memory mem;
     private boolean[] tabelaPaginas;
 
     public GM_paginada(Memory mem, int tamPagina) {
@@ -12,6 +14,7 @@ public class GM_paginada {
         this.tamPg = tamPagina;
         this.numFrames = tamMem/tamPagina;
         this.m = mem.m;
+        this.mem = mem;
         this.tabelaPaginas = new boolean[this.numFrames];
         this.framesLivres = this.numFrames;
 
@@ -30,7 +33,7 @@ public class GM_paginada {
             int i = 0;
             int j = 0;
             while(true){
-                if (i == paginasNecessarias)
+                if (j >= paginasNecessarias)
                     break;
                 if (tabelaPaginas[i] == false){
                     tabelaPaginas[i] = true;
@@ -61,4 +64,9 @@ public class GM_paginada {
         return m;
     }
     
+    public void dumpProcess(int[] pags){
+        for (int i = 0; i < pags.length; i++) {
+            mem.dump(pags[i]*tamPg, pags[i]*tamPg + tamPg);
+        }
+    }
 }
