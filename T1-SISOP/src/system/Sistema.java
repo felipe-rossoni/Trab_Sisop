@@ -62,7 +62,8 @@ public class Sistema {
 		//s.loadAndExec(progs.fibonacciTRAP); // entrada
 		//s.loadAndExec(progs.PC); // bubble sort
 		//s.loadAndExec(progs.readKeyboard);
-		s.loadAndExec(progs.writeScreen);
+		//s.loadAndExec(progs.writeScreen);
+		s.loadAndExec(progs.testInOut);
 		
 	}
 

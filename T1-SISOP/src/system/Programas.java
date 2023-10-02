@@ -236,4 +236,17 @@ public class Programas {
 			new Word(Opcode.TRAP, -1, -1, -1),
 			new Word(Opcode.STOP, -1, -1, -1)
 	};
+	
+	public Word[] testInOut = {
+			new Word(Opcode.LDI, 8, -1, 1),
+			new Word(Opcode.LDI, 9, -1, 15), //grava o valor na posicao de memoria 15
+			new Word(Opcode.LDI, 7, -1, 1),//usa registrador 7 para indicar o device: 1 - keyboard
+			new Word(Opcode.TRAP, -1, -1, -1),
+			
+			new Word(Opcode.LDI, 8, -1, 2),
+			new Word(Opcode.LDI, 9, -1, 15),
+			new Word(Opcode.LDI, 7, -1, 0),//usa registrador 7 para indicar o device: 0 - screen
+			new Word(Opcode.TRAP, -1, -1, -1),
+			new Word(Opcode.STOP, -1, -1, -1)
+	};
 }
