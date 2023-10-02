@@ -1,4 +1,5 @@
 public class Programas {
+	
 	public Word[] fatorial = new Word[] {
 			// este fatorial so aceita valores positivos.   nao pode ser zero
 			// linha   coment
