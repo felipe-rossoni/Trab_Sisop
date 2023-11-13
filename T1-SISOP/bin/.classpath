@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry excluding="T1-SISOP/src/|src/|Backup/" kind="src" path=""/>
-	<classpathentry kind="src" path="Backup"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="T1-SISOP/src"/>
-	<classpathentry kind="output" path="T1-SISOP/bin"/>
-</classpath>
