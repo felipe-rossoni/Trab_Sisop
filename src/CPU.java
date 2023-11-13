@@ -36,7 +36,10 @@ public class CPU {
 		}
 		
 		private boolean legal(int e) {                             // todo acesso a memoria tem que ser verificado
-			// ????
+			if(!isPag){
+				if((e+base < base)||(e+base > limite))
+					return false;
+			}
 			return true;
 		}
 
@@ -69,7 +72,7 @@ public class CPU {
 			while (true) { 			// ciclo de instrucoes. acaba cfe instrucao, veja cada caso.
 			   // --------------------------------------------------------------------------------------------------
 			   // FETCH
-				if (legal(pc+base)) { 
+				if (legal(pc)) { 
 					if(isPag){
 						pc_calc= (pags[pc/tamPag]*tamPag) + (pc%tamPag);
 						base = (pags[pc/tamPag]*tamPag);
