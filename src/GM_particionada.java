@@ -1,5 +1,3 @@
-package system;
-
 public class GM_particionada {
     private int tamPart;
     private int tamMem;

@@ -1,7 +1,3 @@
-package system.syscall;
-
-import system.Word;
-
 public abstract class Device {
 	
 	public int address;

@@ -1,7 +1,3 @@
-package system.syscall;
-
-import system.Word;
-
 public class Screen extends Device {
 	
 	public Screen(int address, int r0) {

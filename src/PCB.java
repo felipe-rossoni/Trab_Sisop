@@ -1,5 +1,3 @@
-package system;
-
 public class PCB {
     private int id;
     private int pc;

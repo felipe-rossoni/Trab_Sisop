@@ -1,9 +1,4 @@
-package system.syscall;
-
 import java.util.Scanner;
-
-import system.Opcode;
-import system.Word;
 
 public class Keyboard extends Device {
 	

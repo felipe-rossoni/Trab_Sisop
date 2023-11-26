@@ -1,9 +1,3 @@
-package system;
-
-import system.syscall.Device;
-import system.syscall.Keyboard;
-import system.syscall.Screen;
-
 public class VM {
 		public int tamMem;    
         public Word[] m;  
@@ -61,7 +55,7 @@ public class VM {
 				if(isPag){
 					int[] pags = processos[id].getPaginas();
 					int tamPag = GM_pag.get_tamPg();
-					cpu.setContext(0,m.length -1, 0, isPag);
+					cpu.setContext(0, pags.length*tamPag -1, 0, isPag);
 					cpu.setPags(pags, tamPag);
 					cpu.run();
 

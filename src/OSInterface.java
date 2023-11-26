@@ -1,5 +1,3 @@
-package system;
-
 import java.util.Scanner;
 
 public class OSInterface {
