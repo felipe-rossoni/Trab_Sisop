@@ -4,11 +4,14 @@ public class PCB {
     private int[] reg;
     private int[] paginas;
     private int partUsada;
+    private estadoCPU esCPU;
+    
 
     public PCB(int id, int pc, int[] paginas){
         this.id = id;
         this.pc = pc;
         this.paginas = paginas;
+        esCPU = null;
     }
 
     public PCB(int id, int pc, int particao){
@@ -31,5 +34,13 @@ public class PCB {
 
     public int getPc(){
         return pc;
+    }
+
+    public estadoCPU getEstadoCPU(){
+        return esCPU;
+    }
+
+    public void setEstadoCPU(estadoCPU esCPU){
+        this.esCPU = esCPU;
     }
 }

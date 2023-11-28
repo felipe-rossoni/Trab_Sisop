@@ -20,6 +20,8 @@ public class CPU {
 						// de palavras
 	private int[] pags;
 	private int tamPag;
+	private int delta; //
+	private estadoCPU esCPU; //
 
 	private InterruptHandling ih; // significa desvio para rotinas de tratamento de Int - se int ligada, desvia
 	private SysCallHandling sysCall; // significa desvio para tratamento de chamadas de sistema - trap
@@ -37,6 +39,7 @@ public class CPU {
 		ih = _ih; // aponta para rotinas de tratamento de int
 		sysCall = _sysCall; // aponta para rotinas de tratamento de chamadas de sistema
 		debug = _debug; // se true, print da instrucao em execucao
+		delta = 0;
 	}
 
 	private boolean legal(int e) { // todo acesso a memoria tem que ser verificado
@@ -95,7 +98,6 @@ public class CPU {
 				// --------------------------------------------------------------------------------------------------
 				// EXECUTA INSTRUCAO NO ir
 				switch (ir.opc) { // conforme o opcode (código de operação) executa
-
 					// Instrucoes de Busca e Armazenamento em Memoria
 					case LDI: // Rd ← k
 						reg[ir.r1] = ir.p;
@@ -393,10 +395,34 @@ public class CPU {
 				ih.handle(irpt, pc); // desvia para rotina de tratamento
 				break; // break sai do loop da cpu
 			}
+			delta++;
+				if (delta == 50){
+					//adiciona o estado no pcb do programa
+					irpt = Interrupts.intSTOP;
+					ih.handle(irpt, pc);
+					delta = 0;
+					esCPU = new estadoCPU(isPag, pc, ir, reg, irpt, base, limite);
+					break;
+					//começa outro programa
+				}
 		} // FIM DO CICLO DE UMA INSTRUÇÃO
+	}
+
+	public estadoCPU getEstadoCPU(){
+		return esCPU;
 	}
 
 	public int[] getReg() {
 		return reg;
+	}
+
+	public void setEstado(estadoCPU es){
+		isPag = es.isPag();
+		pc = es.getPc();
+		ir = es.getIr(); 
+		reg = es.getReg(); 
+		irpt = es.getIrpt(); 
+		base = es.getBase(); 
+		limite = es.getLimite();
 	}
 }
