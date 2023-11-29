@@ -8,7 +8,6 @@ public class PCB {
     private int partUsada;
     private estadoCPU esCPU;
     private ProcessState state;
-    
 
     public PCB(int id, int pc, int[] paginas){
         this.id = id;

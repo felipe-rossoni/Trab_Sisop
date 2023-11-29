@@ -1,7 +1,8 @@
-public class CPU {
+public class CPU implements Runnable {
+	
 	private int maxInt; // valores maximo e minimo para inteiros nesta cpu
 	private int minInt;
-	// característica do processador: contexto da CPU ...
+	// caracterÃ­stica do processador: contexto da CPU ...
 	private boolean isPag;
 	private int pc; // ... composto de program counter,
 	private Word ir; // instruction register,
@@ -15,8 +16,8 @@ public class CPU {
 	private int pc_calc;
 	private int mem_calc;
 
-	private Memory mem; // mem tem funcoes de dump e o array m de memória 'fisica'
-	private Word[] m; // CPU acessa MEMORIA, guarda referencia a 'm'. m nao muda. semre será um array
+	private Memory mem; // mem tem funcoes de dump e o array m de memÃ³ria 'fisica'
+	private Word[] m; // CPU acessa MEMORIA, guarda referencia a 'm'. m nao muda. semre serÃ¡ um array
 						// de palavras
 	private int[] pags;
 	private int tamPag;
@@ -35,7 +36,7 @@ public class CPU {
 		minInt = -32767; // se exceder deve gerar interrupcao de overflow
 		mem = _mem; // usa mem para acessar funcoes auxiliares (dump)
 		m = mem.m; // usa o atributo 'm' para acessar a memoria.
-		reg = new int[10]; // aloca o espaço dos registradores - regs 8 e 9 usados somente para IO
+		reg = new int[10]; // aloca o espaco dos registradores - regs 8 e 9 usados somente para IO
 		ih = _ih; // aponta para rotinas de tratamento de int
 		sysCall = _sysCall; // aponta para rotinas de tratamento de chamadas de sistema
 		debug = _debug; // se true, print da instrucao em execucao
@@ -97,9 +98,9 @@ public class CPU {
 				}
 				// --------------------------------------------------------------------------------------------------
 				// EXECUTA INSTRUCAO NO ir
-				switch (ir.opc) { // conforme o opcode (código de operação) executa
+				switch (ir.opc) { // conforme o opcode (codigo de operacao) executa
 					// Instrucoes de Busca e Armazenamento em Memoria
-					case LDI: // Rd ← k
+					case LDI: // Rd â†� k
 						reg[ir.r1] = ir.p;
 						pc++;
 						break;
@@ -132,7 +133,7 @@ public class CPU {
 						}
 						break;
 
-					case STD: // [A] ← Rs
+					case STD: // [A] â†� Rs
 						if (legal(ir.p)) {
 							if (isPag) {
 								mem_calc = (pags[ir.p / tamPag] * tamPag) + (ir.p % tamPag);
@@ -151,7 +152,7 @@ public class CPU {
 						}
 						break;
 
-					case STX: // [Rd] ←Rs
+					case STX: // [Rd] â†�Rs
 						if (legal(reg[ir.r1])) {
 							if (isPag) {
 								mem_calc = (pags[reg[ir.r1] / tamPag] * tamPag) + (reg[ir.r1] % tamPag);
@@ -179,7 +180,7 @@ public class CPU {
 						break;
 
 					// Instrucoes Aritmeticas
-					case ADD: // Rd ← Rd + Rs
+					case ADD: // Rd â†� Rd + Rs
 
 						reg[ir.r1] = reg[ir.r1] + reg[ir.r2];
 						if (testOverflow(reg[ir.r1])) {
@@ -189,7 +190,7 @@ public class CPU {
 
 						break;
 
-					case ADDI: // Rd ← Rd + k
+					case ADDI: // Rd â†� Rd + k
 						reg[ir.r1] = reg[ir.r1] + ir.p;
 						if (testOverflow(reg[ir.r1])) {
 							irpt = Interrupts.intOverflow;
@@ -197,7 +198,7 @@ public class CPU {
 						pc++;
 						break;
 
-					case SUB: // Rd ← Rd - Rs
+					case SUB: // Rd â†� Rd - Rs
 
 						reg[ir.r1] = reg[ir.r1] - reg[ir.r2];
 						if (testOverflow(reg[ir.r1])) {
@@ -233,7 +234,7 @@ public class CPU {
 
 						break;
 
-					case JMPIG: // If Rc > 0 Then PC ← Rs Else PC ← PC +1
+					case JMPIG: // If Rc > 0 Then PC â†� Rs Else PC â†� PC +1
 
 						if (reg[ir.r2] > 0) {
 							pc = reg[ir.r1];
@@ -378,8 +379,12 @@ public class CPU {
 
 					// Chamada de sistema
 					case TRAP:
-						sysCall.handle(reg[10]); // <<<<< aqui desvia para rotina de chamada de sistema, no momento so
-												// temos IO
+						//dentro do syscall.handle:
+						//salva o estado da cpu
+						//coloca o processo na fila de bloqueados
+						//informa o device requisitado que ele precisa executar uma tarefa
+						//pega o proximo processo da fila de disponiveis 
+						sysCall.handle(reg[8]); // <<<<< aqui desvia para rotina de chamada de sistema, no momento so temos IO
 						pc++;
 						break;
 
@@ -390,8 +395,14 @@ public class CPU {
 				}
 			}
 			// --------------------------------------------------------------------------------------------------
-			// VERIFICA INTERRUPÇÃO !!! - TERCEIRA FASE DO CICLO DE INSTRUÇÕES
-			if (!(irpt == Interrupts.noInterrupt)) { // existe interrupção
+			// VERIFICA INTERRUPCAO !!! - TERCEIRA FASE DO CICLO DE INSTRUCOES
+			if (!(irpt == Interrupts.noInterrupt)) { // existe interrupcao
+				
+				//em caso de interrupcao de device:
+				//cpu recebe notificacao do device que o trabalho ja esta pronto
+				//remove o processo da fila de bloqueados e coloca na fila de ready
+				//restaura o processo informado pelo device na cpu
+				
 				ih.handle(irpt, pc); // desvia para rotina de tratamento
 				break; // break sai do loop da cpu
 			}
@@ -403,9 +414,9 @@ public class CPU {
 					delta = 0;
 					esCPU = new estadoCPU(isPag, pc, ir, reg, irpt, base, limite);
 					break;
-					//começa outro programa
+					//comeca outro programa
 				}
-		} // FIM DO CICLO DE UMA INSTRUÇÃO
+		} // FIM DO CICLO DE UMA INSTRUCAO
 	}
 
 	public estadoCPU getEstadoCPU(){

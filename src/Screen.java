@@ -17,4 +17,17 @@ public class Screen extends Device {
 
 	}
 
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				read();
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
 }

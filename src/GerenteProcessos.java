@@ -3,11 +3,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class GerenteProcessos {
-	
-	private class ProcessComparator implements Comparator{
+	/*
+	private class ProcessComparator implements Comparator<PCB>{
 
 		@Override
-		public int compare(Object o1, Object o2) {
+		public int compare(PCB o1, PCB o2) {
 			
 			if(((PCB)o1).getState().ordinal() > ((PCB)o2).getState().ordinal()) {
 				return 1;
@@ -18,7 +18,7 @@ public class GerenteProcessos {
 			return 0;
 		}
 	}
-	
+*/	
 	
 	private boolean tipoGm;  // true para paginacao e false para fixa
 	private PCB running;
@@ -32,15 +32,15 @@ public class GerenteProcessos {
 	public GerenteProcessos(GM_paginada gm, int numProgamas){
 		this.gerentePaginado = gm;
 		this.tipoGm = true;
-		this.readyQueue = new ConcurrentSkipListMap<Integer, PCB>(new ProcessComparator());
-		this.bloquedQueue = new ConcurrentSkipListMap<Integer, PCB>(new ProcessComparator());
+		this.readyQueue = new ConcurrentSkipListMap<Integer, PCB>();
+		this.bloquedQueue = new ConcurrentSkipListMap<Integer, PCB>();
 	}
 
 	public GerenteProcessos(GM_particionada gm, int numProgamas){
 		this.gerenteParticionado= gm;
 		this.tipoGm = false;
-		this.readyQueue = new ConcurrentSkipListMap<Integer, PCB>(new ProcessComparator());
-		this.bloquedQueue = new ConcurrentSkipListMap<Integer, PCB>(new ProcessComparator());
+		this.readyQueue = new ConcurrentSkipListMap<Integer, PCB>();
+		this.bloquedQueue = new ConcurrentSkipListMap<Integer, PCB>();
 	}
 	
 	public Map<Integer, PCB> getReadyPCBs(){
@@ -75,9 +75,12 @@ public class GerenteProcessos {
 			
 			return newProg.getId();
 		}
+		
 		int particao = gerenteParticionado.aloca(tamProg);
-		if(particao == -1)
+		if(particao == -1) {
 			return -1;
+		}
+		
 		PCB newProg = new PCB(id++, 0, particao);
 		carregaPrograma(programa, particao);
 		readyQueue.put(newProg.getId(), newProg);
@@ -144,6 +147,7 @@ public class GerenteProcessos {
 		boolean var = false;
 		if (readyQueue.isEmpty()) {
 			System.out.println("Nenhum processo alocado!");
+			System.out.println("Fila de bloqueados: " + bloquedQueue.size());
 		}else{
 			System.out.println("Lista de processos: ");
 			for (int i = 0; i < readyQueue.size(); i++) {
