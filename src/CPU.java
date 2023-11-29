@@ -1,24 +1,25 @@
 public class CPU implements Runnable {
-	
+
 	private int maxInt; // valores maximo e minimo para inteiros nesta cpu
 	private int minInt;
 	// caracterÃ­stica do processador: contexto da CPU ...
 	private boolean isPag;
+	public boolean wait = false;
 	private int pc; // ... composto de program counter,
 	private Word ir; // instruction register,
 	private int[] reg; // registradores da CPU
 	private Interrupts irpt; // durante instrucao, interrupcao pode ser sinalizada
 	private int base; // base e limite de acesso na memoria
 	private int limite; // por enquanto toda memoria pode ser acessada pelo processo rodando
-						// ATE AQUI: contexto da CPU - tudo que precisa sobre o estado de um processo
-						// para executa-lo
-						// nas proximas versoes isto pode modificar
+	// ATE AQUI: contexto da CPU - tudo que precisa sobre o estado de um processo
+	// para executa-lo
+	// nas proximas versoes isto pode modificar
 	private int pc_calc;
 	private int mem_calc;
 
 	private Memory mem; // mem tem funcoes de dump e o array m de memÃ³ria 'fisica'
 	private Word[] m; // CPU acessa MEMORIA, guarda referencia a 'm'. m nao muda. semre serÃ¡ um array
-						// de palavras
+	// de palavras
 	private int[] pags;
 	private int tamPag;
 	private int delta; //
@@ -29,9 +30,9 @@ public class CPU implements Runnable {
 	private boolean debug; // se true entao mostra cada instrucao em execucao
 
 	public CPU(Memory _mem, InterruptHandling _ih, SysCallHandling _sysCall, boolean _debug) { // ref a MEMORIA e
-																								// interrupt handler
-																								// passada na criacao da
-																								// CPU
+		// interrupt handler
+		// passada na criacao da
+		// CPU
 		maxInt = 32767; // capacidade de representacao modelada
 		minInt = -32767; // se exceder deve gerar interrupcao de overflow
 		mem = _mem; // usa mem para acessar funcoes auxiliares (dump)
@@ -81,24 +82,25 @@ public class CPU implements Runnable {
 	}
 
 	public void run() { // execucao da CPU supoe que o contexto da CPU, vide acima, esta devidamente
-						// setado
+		// setado
 		while (true) { // ciclo de instrucoes. acaba cfe instrucao, veja cada caso.
 			// --------------------------------------------------------------------------------------------------
-			// FETCH
-			if (legal(pc)) {
-				if (isPag) {
-					pc_calc = (pags[pc / tamPag] * tamPag) + (pc % tamPag);
-					ir = m[pc_calc];
-				} else {
-					ir = m[pc + base]; // <<<<<<<<<<<< busca posicao da memoria apontada por pc, guarda em ir
-				}
-				if (debug) {
-					System.out.print("                               pc: " + pc + "       exec: ");
-					mem.dump(ir);
-				}
-				// --------------------------------------------------------------------------------------------------
-				// EXECUTA INSTRUCAO NO ir
-				switch (ir.opc) { // conforme o opcode (codigo de operacao) executa
+			// FETCH			
+			if (!wait) {
+				if (legal(pc)) {
+					if (isPag) {
+						pc_calc = (pags[pc / tamPag] * tamPag) + (pc % tamPag);
+						ir = m[pc_calc];
+					} else {
+						ir = m[pc + base]; // <<<<<<<<<<<< busca posicao da memoria apontada por pc, guarda em ir
+					}
+					if (debug) {
+						System.out.print("                               pc: " + pc + "       exec: ");
+						mem.dump(ir);
+					}
+					// --------------------------------------------------------------------------------------------------
+					// EXECUTA INSTRUCAO NO ir
+					switch (ir.opc) { // conforme o opcode (codigo de operacao) executa
 					// Instrucoes de Busca e Armazenamento em Memoria
 					case LDI: // Rd â†� k
 						reg[ir.r1] = ir.p;
@@ -179,7 +181,7 @@ public class CPU implements Runnable {
 						}
 						break;
 
-					// Instrucoes Aritmeticas
+						// Instrucoes Aritmeticas
 					case ADD: // Rd â†� Rd + Rs
 
 						reg[ir.r1] = reg[ir.r1] + reg[ir.r2];
@@ -228,7 +230,7 @@ public class CPU implements Runnable {
 
 						break;
 
-					// Instrucoes JUMP
+						// Instrucoes JUMP
 					case JMP: // PC <- k
 						pc = ir.p;
 
@@ -368,7 +370,7 @@ public class CPU implements Runnable {
 
 						break;
 
-					// outras
+						// outras
 					case STOP: // por enquanto, para execucao
 						irpt = Interrupts.intSTOP;
 						break;
@@ -377,37 +379,27 @@ public class CPU implements Runnable {
 						irpt = Interrupts.intInstrucaoInvalida;
 						break;
 
-					// Chamada de sistema
+						// Chamada de sistema
 					case TRAP:
-						//dentro do syscall.handle:
-						//salva o estado da cpu
-						//coloca o processo na fila de bloqueados
-						//informa o device requisitado que ele precisa executar uma tarefa
-						//pega o proximo processo da fila de disponiveis 
 						sysCall.handle(reg[8]); // <<<<< aqui desvia para rotina de chamada de sistema, no momento so temos IO
-						pc++;
+
 						break;
 
-					// Inexistente
+						// Inexistente
 					default:
 						irpt = Interrupts.intInstrucaoInvalida;
 						break;
+					}
 				}
-			}
-			// --------------------------------------------------------------------------------------------------
-			// VERIFICA INTERRUPCAO !!! - TERCEIRA FASE DO CICLO DE INSTRUCOES
-			if (!(irpt == Interrupts.noInterrupt)) { // existe interrupcao
-				
-				//em caso de interrupcao de device:
-				//cpu recebe notificacao do device que o trabalho ja esta pronto
-				//remove o processo da fila de bloqueados e coloca na fila de ready
-				//restaura o processo informado pelo device na cpu
-				
-				ih.handle(irpt, pc); // desvia para rotina de tratamento
-				break; // break sai do loop da cpu
-			}
-			delta++;
+				// --------------------------------------------------------------------------------------------------
+				// VERIFICA INTERRUPCAO !!! - TERCEIRA FASE DO CICLO DE INSTRUCOES
+				if (!(irpt == Interrupts.noInterrupt)) { // existe interrupcao
+					ih.handle(irpt, pc); // desvia para rotina de tratamento
+					break; // break sai do loop da cpu
+				}
+				delta++;
 				if (delta == 50){
+					System.out.println("DELTA");
 					//adiciona o estado no pcb do programa
 					irpt = Interrupts.intSTOP;
 					ih.handle(irpt, pc);
@@ -416,11 +408,21 @@ public class CPU implements Runnable {
 					break;
 					//comeca outro programa
 				}
+			}
+			else {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//.out.println("waiting");
+			}
 		} // FIM DO CICLO DE UMA INSTRUCAO
 	}
 
 	public estadoCPU getEstadoCPU(){
-		return esCPU;
+		return new estadoCPU(isPag, pc, ir, reg, irpt, base, limite);
 	}
 
 	public int[] getReg() {
@@ -436,4 +438,12 @@ public class CPU implements Runnable {
 		base = es.getBase(); 
 		limite = es.getLimite();
 	}
+
+	public void signalDeviceReady() {
+		System.out.println("signal");
+		wait = false;
+		irpt = Interrupts.intDeviceReady;
+	}
+
+
 }

@@ -4,11 +4,12 @@ public class Keyboard extends Device {
 
 	private Scanner scanner;
 
-	public Keyboard(int address, int r0) {
+	public Keyboard(int address, int r0, Memory memory) {
 		this.address = address;
 		this.r0 = r0;
 		this.scanner = new Scanner(System.in);
 		this.state = ProcessState.BLOCKED;
+		this.memory = memory;
 	}
 
 	@Override
@@ -28,10 +29,10 @@ public class Keyboard extends Device {
 	public void run() {
 		while(true) {
 			try {
-				if(this.state == ProcessState.READY) {
-					this.state = ProcessState.RUNNING;
-					read();
-					this.state = ProcessState.BLOCKED;
+				if(this.state == ProcessState.RUNNING) {
+					Word word = read();
+					this.memory.m[this.bufferInit] = word;
+					this.state = ProcessState.READY;
 				}
 				Thread.sleep(200);
 			} catch (InterruptedException e) {

@@ -3,22 +3,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class GerenteProcessos {
-	/*
-	private class ProcessComparator implements Comparator<PCB>{
-
-		@Override
-		public int compare(PCB o1, PCB o2) {
-			
-			if(((PCB)o1).getState().ordinal() > ((PCB)o2).getState().ordinal()) {
-				return 1;
-			} else if(((PCB)o1).getState().ordinal() < ((PCB)o2).getState().ordinal()) {
-				return -1;
-			}
-			
-			return 0;
-		}
-	}
-*/	
 	
 	private boolean tipoGm;  // true para paginacao e false para fixa
 	private PCB running;
@@ -45,6 +29,14 @@ public class GerenteProcessos {
 	
 	public Map<Integer, PCB> getReadyPCBs(){
 		return readyQueue;
+	}
+	
+	public void setRunning(PCB running) {
+		this.running = running;
+	}
+	
+	public PCB getRunning() {
+		return running;
 	}
 	
 	public PCB getReadyProcess(int id) {
@@ -169,7 +161,34 @@ public class GerenteProcessos {
 				gerenteParticionado.dumpProcess(process.getPartUsada());
 			System.out.printf("PC: %d\n", readyQueue.get(id).getPc());
 		}else{
-			System.out.println("Processo não existe!");
+			System.out.println("Processo nao existe!");
 		}
+	}
+	
+	public void blockProcess(int id, estadoCPU estado) {
+		if(readyQueue.containsKey(id)) {
+			PCB process = readyQueue.remove(id);
+			process.setState(ProcessState.BLOCKED);
+			process.setEstadoCPU(estado);
+			bloquedQueue.put(process.getId(), process);
+			
+		}else{
+			System.out.println("Processo nao existe!");
+		}
+	}
+	
+	public void unBlockProcess(int id) {
+		if(bloquedQueue.containsKey(id)) {
+			PCB process = bloquedQueue.remove(id);
+			process.setState(ProcessState.READY);
+			readyQueue.put(process.getId(), process);
+			
+		}else{
+			System.out.println("Processo nao existe!");
+		}
+	}
+	
+	public PCB getBlockedProcess(int processId) {
+		return bloquedQueue.get(processId);
 	}
 }

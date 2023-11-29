@@ -42,8 +42,10 @@ public class Sistema {
 		 ih = new InterruptHandling();
          sysCall = new SysCallHandling();
 		 vm = new VM(ih, sysCall, pag);
+		 ih.setVM(vm);
 		 sysCall.setVM(vm);
 		 progs = new Programas();
+		 new Thread(vm).start();
 	}
 
     // -------------------  S I S T E M A - fim --------------------------------------------------------------
