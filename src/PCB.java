@@ -1,3 +1,5 @@
+
+
 public class PCB {
     private int id;
     private int pc;
@@ -5,19 +7,22 @@ public class PCB {
     private int[] paginas;
     private int partUsada;
     private estadoCPU esCPU;
+    private ProcessState state;
     
 
     public PCB(int id, int pc, int[] paginas){
         this.id = id;
         this.pc = pc;
         this.paginas = paginas;
-        esCPU = null;
+        this.esCPU = null;
+        this.state = ProcessState.READY;
     }
 
     public PCB(int id, int pc, int particao){
         this.id = id;
         this.pc = pc;
         this.partUsada = particao;
+        this.state = ProcessState.READY;
     }
 
     public int[] getPaginas() {
@@ -43,4 +48,12 @@ public class PCB {
     public void setEstadoCPU(estadoCPU esCPU){
         this.esCPU = esCPU;
     }
+    
+    public ProcessState getState() {
+		return state;
+	}
+    
+    public void setState(ProcessState state) {
+		this.state = state;
+	}
 }

@@ -50,32 +50,33 @@ public class VM {
 		}
 
 		public void executaProcesso(int id){
-			PCB[] processos = gp.getPcbs();
-			if (processos[id] != null){
+			
+			PCB process = gp.getReadyProcess(id);
+			if (process != null){
 				if(isPag){
-					int[] pags = processos[id].getPaginas();
+					int[] pags = process.getPaginas();
 					int tamPag = GM_pag.get_tamPg();
 					cpu.setContext(0, pags.length*tamPag -1, 0, isPag);
 					cpu.setPags(pags, tamPag);
-					if (processos[id].getEstadoCPU() != null){
-						cpu.setEstado(processos[id].getEstadoCPU());
+					if (process.getEstadoCPU() != null){
+						cpu.setEstado(process.getEstadoCPU());
 					}
 					cpu.run();
-					processos[id].setEstadoCPU(cpu.getEstadoCPU());
+					process.setEstadoCPU(cpu.getEstadoCPU());
 
 				}else{
-					int part = processos[id].getPartUsada();
+					int part = process.getPartUsada();
 					int tamPart = GM_part.get_tamPart();
 					cpu.setContext(part*tamPart,((part+1)*tamPart) -1, 0, isPag);
-					if (processos[id].getEstadoCPU() != null){
-						cpu.setEstado(processos[id].getEstadoCPU());
+					if (process.getEstadoCPU() != null){
+						cpu.setEstado(process.getEstadoCPU());
 					}
 					cpu.run();
-					processos[id].setEstadoCPU(cpu.getEstadoCPU());
+					process.setEstadoCPU(cpu.getEstadoCPU());
 				}
 			}
 			else{
-				System.out.println("Processo não existe!");
+				System.out.println("Processo nao existe!");
 			}
 			
 		}
