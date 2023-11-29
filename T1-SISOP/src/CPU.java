@@ -1,4 +1,4 @@
-package system;
+
 
 public class CPU {
 		private int maxInt; // valores maximo e minimo para inteiros nesta cpu

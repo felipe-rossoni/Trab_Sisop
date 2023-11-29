@@ -1,4 +1,4 @@
-package system;
+
 public class Programas {
 	
 	public Word[] fatorial = new Word[] {

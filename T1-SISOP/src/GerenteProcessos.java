@@ -1,4 +1,4 @@
-package system;
+
 
 public class GerenteProcessos {
     private boolean tipoGm;  // true para paginação e false para fixa

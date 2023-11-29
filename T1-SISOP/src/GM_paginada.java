@@ -1,4 +1,4 @@
-package system;
+
 
 public class GM_paginada {
     private int framesLivres;

@@ -1,10 +1,4 @@
-package system;
 
-import system.devices.Console;
-import system.devices.Device;
-import system.devices.Keyboard;
-import system.devices.Screen;
-import system.devices.Shell;
 
 public class VM {
 		public int tamMem;    

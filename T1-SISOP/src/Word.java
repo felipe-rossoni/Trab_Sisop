@@ -1,4 +1,4 @@
-package system;
+
 
 public class Word { 	// cada posicao da memoria tem uma instrucao (ou um dado)
 		public Opcode opc; 	//
