@@ -1,0 +1,6 @@
+
+*.class
+.project
+bin/.gitkeep
+.classpath
+bin/.gitkeep
