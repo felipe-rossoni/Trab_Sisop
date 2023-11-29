@@ -1,12 +1,14 @@
-package system.syscall;
+package system.devices;
 
 import system.Word;
+import system.devices.Device.State;
 
 public class Screen extends Device {
 	
 	public Screen(int address, int r0) {
 		this.address = address;
 		this.r0 = r0;
+		this.state = State.READY;
 	}
 	
 	@Override
@@ -19,6 +21,12 @@ public class Screen extends Device {
 	public void write(Word word) {
 		System.out.println("Screen output: " + word.p);
 
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,9 +1,10 @@
-package system.syscall;
+package system.devices;
 
 import java.util.Scanner;
 
 import system.Opcode;
 import system.Word;
+import system.devices.Device.State;
 
 public class Keyboard extends Device {
 	
@@ -11,6 +12,7 @@ public class Keyboard extends Device {
 	public Keyboard(int address, int r0) {
 		this.address = address;
 		this.r0 = r0;
+		this.state = State.READY;
 	}
 	
 	@Override
@@ -25,6 +27,12 @@ public class Keyboard extends Device {
 
 	@Override
 	public void write(Word word) {
+		
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
 		
 	}
 

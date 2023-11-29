@@ -1,8 +1,10 @@
 package system;
 
-import system.syscall.Device;
-import system.syscall.Keyboard;
-import system.syscall.Screen;
+import system.devices.Console;
+import system.devices.Device;
+import system.devices.Keyboard;
+import system.devices.Screen;
+import system.devices.Shell;
 
 public class VM {
 		public int tamMem;    
@@ -38,13 +40,19 @@ public class VM {
         
         private void loadDevices() {
         	System.out.println("Loading devices....");
-        	devices = new Device[2];
+        	devices = new Device[4];
         	
         	System.out.println("Loading screen....");
         	devices[0] = new Screen(0, 9);
         	
         	System.out.println("Loading keyboard....");
         	devices[1] = new Keyboard(1, 9);
+
+        	System.out.println("Loading shell....");
+        	devices[1] = new Shell(2, 9);
+
+        	System.out.println("Loading console....");
+        	devices[1] = new Console(3, 9);
         }
 
 		public int criaProcesso(Word[] process){
